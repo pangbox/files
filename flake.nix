@@ -12,19 +12,29 @@
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
+        gitCommit = self.dirtyShortRev or self.rev or "";
       in
       {
         packages = rec {
-          pangfiles = pkgs.buildGoModule {
-            pname = "pangfiles";
-            version = "0.0.0";
+          pangfiles = pkgs.buildGo122Module {
+            name = "pangfiles";
             src = self;
-            vendorHash = "sha256-LwSUYQ+mt2dlyEMwlwCI/OZR8EM1jXLKfbi0w0zWgDM=";
+            vendorHash = pkgs.lib.fileContents ./go.mod.sri;
+            ldflags = [ "-X github.com/pangbox/pangfiles/version.GitCommit=${gitCommit}" ];
             meta = {
               mainProgram = "pang";
             };
           };
           default = pangfiles;
+        };
+        devShell = pkgs.mkShell {
+          packages = with pkgs; [
+            git
+            gopls
+            gotools
+            go_1_22
+            gnumake
+          ];
         };
       }
     );

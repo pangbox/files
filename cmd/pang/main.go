@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -10,6 +11,7 @@ import (
 	"github.com/google/subcommands"
 	"github.com/pangbox/pangfiles/crypto/pyxtea"
 	"github.com/pangbox/pangfiles/pak"
+	"github.com/pangbox/pangfiles/version"
 )
 
 var xteaKeys = []pyxtea.Key{
@@ -65,8 +67,26 @@ func getPakKey(region string, patterns []string) pyxtea.Key {
 	return getRegionKey(region)
 }
 
+type versionCmd struct{}
+
+func (versionCmd) Name() string           { return "version" }
+func (versionCmd) Synopsis() string       { return "Prints version information to stdout." }
+func (v versionCmd) Usage() string        { return fmt.Sprintf("%s:\n  %s\n", v.Name(), v.Synopsis()) }
+func (versionCmd) SetFlags(*flag.FlagSet) {}
+func (versionCmd) Execute(context.Context, *flag.FlagSet, ...interface{}) subcommands.ExitStatus {
+	versionStr := "v" + version.Release
+	if version.GitCommit != "" {
+		versionStr += "+" + version.GitCommit
+	}
+	fmt.Println(versionStr)
+	return subcommands.ExitSuccess
+}
+
 func main() {
 	subcommands.Register(subcommands.HelpCommand(), "")
+	subcommands.Register(subcommands.FlagsCommand(), "")
+	subcommands.Register(subcommands.CommandsCommand(), "")
+	subcommands.Register(&versionCmd{}, "")
 	subcommands.Register(&cmdPakMount{}, "paks")
 	subcommands.Register(&cmdPakExtract{}, "paks")
 	subcommands.Register(&cmdUpdateListServe{}, "updatelists")
