@@ -45,6 +45,7 @@ jobs:
           ${{ steps.meta.outputs.tags }}
           localhost/xgo:latest
         labels: ${{ steps.meta.outputs.labels }}
+        file: ci/xgo/Dockerfile
 
     - name: Test Build
       run: bash ci/xgo/xgo-build.sh localhost/xgo:latest
@@ -56,3 +57,4 @@ jobs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        file: ci/xgo/Dockerfile
