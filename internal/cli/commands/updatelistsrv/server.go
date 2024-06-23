@@ -1,9 +1,8 @@
-package main
+package updatelistsrv
 
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -56,7 +55,7 @@ func (s *server) calcEntry(wg *sync.WaitGroup, entry *updatelist.FileInfo, f os.
 func (s *server) updateList(rw io.Writer) error {
 	start := time.Now()
 
-	files, err := ioutil.ReadDir(s.dir)
+	files, err := os.ReadDir(s.dir)
 	if err != nil {
 		return err
 	}
@@ -78,12 +77,17 @@ func (s *server) updateList(rw io.Writer) error {
 			continue
 		}
 		name := f.Name()
+		info, err := f.Info()
+		if err != nil {
+			log.Printf("Warning: error stat'ing file %q, skipping: %v", name, err)
+			continue
+		}
 
 		s.mutex.RLock()
 		cache, ok := s.cache[name]
 		s.mutex.RUnlock()
 
-		if ok && cache.modTime == f.ModTime() && cache.fSize == f.Size() {
+		if ok && cache.modTime == info.ModTime() && cache.fSize == info.Size() {
 			// Cache hit
 			hit++
 			doc.UpdateFiles.Files = append(doc.UpdateFiles.Files, cache.fInfo)
@@ -95,7 +99,7 @@ func (s *server) updateList(rw io.Writer) error {
 			doc.UpdateFiles.Count++
 			entry := &doc.UpdateFiles.Files[len(doc.UpdateFiles.Files)-1]
 			wg.Add(1)
-			go s.calcEntry(&wg, entry, f)
+			go s.calcEntry(&wg, entry, info)
 		}
 	}
 

@@ -1,7 +1,7 @@
-package main
+package shell
 
 import "os/exec"
 
-func openfolder(folder string) error {
+func OpenFolder(folder string) error {
 	return exec.Command("open", folder).Start()
 }
