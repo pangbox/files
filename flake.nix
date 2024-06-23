@@ -1,5 +1,6 @@
 {
   description = "Tools for reading and manipulating PangYa game files";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
   outputs =
     {
