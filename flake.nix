@@ -11,6 +11,7 @@
     flake-utils.lib.eachDefaultSystem (
       system:
       let
+        inherit (pkgs) lib stdenv;
         pkgs = nixpkgs.legacyPackages.${system};
         gitCommit = self.dirtyShortRev or self.rev or "";
       in
@@ -28,13 +29,13 @@
           default = pangfiles;
         };
         devShell = pkgs.mkShell {
-          packages = with pkgs; [
-            git
-            gopls
-            gotools
-            go_1_22
-            gnumake
-          ];
+          packages = [
+            pkgs.git
+            pkgs.gopls
+            pkgs.gotools
+            pkgs.go_1_22
+            pkgs.gnumake
+          ] ++ lib.optional stdenv.isDarwin [ pkgs.macfuse-stubs ];
         };
       }
     );
