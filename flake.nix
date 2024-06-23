@@ -13,6 +13,7 @@
       let
         inherit (pkgs) lib stdenv;
         pkgs = nixpkgs.legacyPackages.${system};
+        deps = lib.optionals stdenv.isDarwin [ pkgs.macfuse-stubs ];
         gitCommit = self.dirtyShortRev or self.rev or "";
       in
       {
@@ -20,6 +21,7 @@
           pangfiles = pkgs.buildGo122Module {
             name = "pangfiles";
             src = self;
+            buildInputs = deps;
             vendorHash = pkgs.lib.fileContents ./go.mod.sri;
             ldflags = [ "-X github.com/pangbox/pangfiles/version.GitCommit=${gitCommit}" ];
             meta = {
@@ -35,7 +37,7 @@
             pkgs.gotools
             pkgs.go_1_22
             pkgs.gnumake
-          ] ++ lib.optional stdenv.isDarwin [ pkgs.macfuse-stubs ];
+          ] ++ deps;
         };
       }
     );
