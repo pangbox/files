@@ -1,0 +1,28 @@
+name: Nix
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+jobs:
+  test:
+    name: Nix Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v11
+      - uses: DeterminateSystems/magic-nix-cache-action@v6
+      - uses: DeterminateSystems/flake-checker-action@v7
+        with:
+          ignore-missing-flake-lock: false
+          fail-mode: true
+      - name: Build
+        run: nix build
+      - name: Check formatting
+        run: nix develop --command nixfmt --check **.nix
+      - name: Run Dev Shell Build
+        run: nix develop --command go build ./...
+      - name: Run Dev Shell Tests
+        run: nix develop --command go test ./...
+      - name: Flake Check
+        run: nix flake check --all-systems

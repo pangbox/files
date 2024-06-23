@@ -30,13 +30,14 @@
           };
           default = pangfiles;
         };
-        devShell = pkgs.mkShell {
+        devShells.default = pkgs.mkShell {
           packages = [
             pkgs.git
             pkgs.gopls
             pkgs.gotools
             pkgs.go_1_22
             pkgs.gnumake
+            pkgs.nixfmt-rfc-style
           ] ++ deps;
         };
       }
